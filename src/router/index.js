@@ -11,9 +11,10 @@ import ConversionView from '@/views/ConversionView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import MilkdownEditorWrapper from '@/views/MilkdownEditorWrapper.vue'
 import DrawView from '@/views/DrawView.vue'
-import TextEdito from '@/views/TextEdito.vue'
+import TextEdito from '@/views/TextEditor.vue'
 import CanvasDrawer from '@/views/CanvasDrawer.vue'
 import FlutterView from '@/views/FlutterView.vue'
+import Notas from '@/views/Notas.vue'
 
 const router = createRouter({
     history: createWebHistory(
@@ -28,15 +29,9 @@ const router = createRouter({
             name: 'register',
             component: RegisterView,
         },
-
         {
             path: '/editor',
             name: 'editor',
-            component: MilkdownEditorWrapper,
-        },
-        {
-            path: '/editor2',
-            name: 'editor2',
             component: TextEdito,
         },
         {
@@ -71,6 +66,11 @@ const router = createRouter({
                     path: '/flutter/:id/:codigo',
                     name: 'flutter',
                     component: FlutterView,
+                },
+                {
+                    path: '/notas/:id',
+                    name: 'notas',
+                    component: Notas,
                 },
                 {
                     path: '/flutter-colaborativo/:codigo',

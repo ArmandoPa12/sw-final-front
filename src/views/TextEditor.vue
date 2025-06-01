@@ -1,14 +1,22 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import DrawingCanvas from './CanvasDrawer.vue' // Componente de dibujo
+import { onMounted, onUnmounted, ref } from 'vue'
+import DrawingCanvas from './CanvasDrawer.vue'
 import { marked } from 'marked';
+import { useNotaStore } from '../stores/nota.js';
+import { useRoute, useRouter } from 'vue-router'
+import  Audio from '@/views/Audios.vue'
 
 
+
+const store = useNotaStore();
+const nota = store.notaActual
+const router = useRouter();
+const mostrarAudio = ref(false)
 const editor = ref(null)
 const contenidoHtml = ref('')
 const showCanvas = ref(false)
-
-
+let documento = ref();
+const originalTitulo = ref(nota.titulo) 
 
 let quill
 
@@ -22,8 +30,8 @@ onMounted(async () => {
         modules: {
             toolbar: {
                 container: [
-                    ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'image', 'code-block'],
+                    ['bold', 'italic', 'image', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
                     [{ header: 1 }, { header: 2 }],
                     [{ list: 'ordered' }, { list: 'bullet' }],
                     [{ script: 'sub' }, { script: 'super' }],
@@ -47,22 +55,33 @@ onMounted(async () => {
         theme: 'snow'
     })
 
-    // Agregar botón personalizado al toolbar
     const button = document.createElement('button')
-    //   button.innerHTML = '🖊️'
     button.innerHTML = `<img src="./draw-svgrepo-com.svg" alt="Dibujo" style="width: 20px; height: 20px;" />`
-
     button.title = 'Insertar dibujo'
     button.onclick = () => showCanvas.value = true
-
     const customGroup = document.createElement('span')
     customGroup.classList.add('ql-formats')
     customGroup.appendChild(button)
     editor.value.previousSibling.appendChild(customGroup)
+
+
+
+    documento.value = await store.getUno({ notaId: nota.id })
+    console.log(documento.value);
+
+    if (documento.value?.contenido) {
+        quill.clipboard.dangerouslyPasteHTML(0, documento.value.contenido)
+    }
+
+})
+
+onUnmounted(() => {
+    clearInterval(intervaloGuardado)
+    // guardarTituloAutomatico()
 })
 
 const insertText = async () => {
-  const markdownText = `
+    const markdownText = `
   # Resumen de las Guerras del Opio
 
 Las Guerras del Opio, también conocidas como las guerras anglo-chinas, fueron dos conflictos bélicos ocurridos en el siglo XIX entre el Imperio Chino y el Imperio Británico. Estas guerras se libraron principalmente por intereses comerciales, relacionados con el contrabando de opio. La primera guerra tuvo lugar entre 1839 y 1842, mientras que la segunda se extendió desde 1856 hasta 1860, con la intervención de Francia aliada con los británicos.
@@ -89,49 +108,21 @@ Las derrotas chinas en ambas guerras llevaron a la firma de los **Tratados Desig
  
  `;
 
-  const htmlContent = marked(markdownText);
-  const range = quill.getSelection();
-  const insertAt = range ? range.index : quill.getLength();
-
-  // Crear un contenedor temporal para dividir el HTML por bloques
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = htmlContent;
-  const elements = Array.from(tempDiv.childNodes);
-
-  // Insertar cada bloque con una pausa
-  for (let i = 0; i < elements.length; i++) {
-    const el = elements[i];
-    await new Promise(resolve => setTimeout(resolve, 500)); // Velocidad (en ms)
-
-    // Insertar cada nodo como HTML 
-    quill.clipboard.dangerouslyPasteHTML(quill.getLength(), el.outerHTML || el.textContent);
-  }
+    const htmlContent = marked(markdownText);
+    const range = quill.getSelection();
+    const insertAt = range ? range.index : quill.getLength();
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    const elements = Array.from(tempDiv.childNodes);
+    for (let i = 0; i < elements.length; i++) {
+        const el = elements[i];
+        await new Promise(resolve => setTimeout(resolve, 500));
+        quill.clipboard.dangerouslyPasteHTML(quill.getLength(), el.outerHTML || el.textContent);
+    }
 };
 
 
-// const insertText = () => {
-//     const markdownText = `
-// # Guerras del Opio: Un Conflicto Anglog-Chino en el Siglo XIX
-
-// Las **Guerras del Opio** fueron dos conflictos bélicos importantes que ocurrieron en el siglo XIX entre el **Imperio Chino** y el **Imperio Británico**. La primera guerra tuvo lugar entre 1839 y 1842, y la segunda, con la participación de Francia, entre 1856 y 1860. Estas guerras estuvieron profundamente marcadas por intereses comerciales, principalmente el **comercio del opio**, que fue el centro de la disputa.
-
-//     `;
-
-//     const htmlContent = marked(markdownText);
-//     const range = quill.getSelection();
-//     console.log(htmlContent);
-
-//   if (range) {
-//     // Si hay una selección, inserta el contenido HTML
-//     quill.clipboard.dangerouslyPasteHTML(range.index, htmlContent);
-//   } else {
-//     // Si no hay una selección, inserta el contenido al final del editor
-//     const currentContent = quill.root.innerHTML;
-//     quill.root.innerHTML = currentContent + htmlContent;
-//   }
-// };
-
-const insertarImagenDibujo = (dataUrl) => {
+const insertarImagenDibujo = async (dataUrl) => {
     const range = quill.getSelection(true)
     quill.insertEmbed(range.index, 'image', dataUrl)
     showCanvas.value = false
@@ -155,21 +146,100 @@ function cargarEstilos(href) {
         document.head.appendChild(link)
     })
 }
+
+const goBack = () => {
+    router.back();
+}
+
+const guardarNota = async () => {
+    const html = quill.root.innerHTML
+    const a = await store.update({
+        titulo: originalTitulo.value,
+        contenido: html
+    }, nota.id)
+    console.log('Guardado automático')
+}
+const intervaloGuardado = setInterval(() => {
+    if (quill) guardarNota()
+}, 5000)   
+
+// const guardarTituloAutomatico = async () => {
+//     await store.update({ titulo: originalTitulo.value }, nota.id)
+// }
+
 </script>
 
 <template>
-    
-    <div class="editor-container">
+     <div v-if="mostrarAudio" class="modal-overlay">
+    <div class="modal-popup">
+      <Audio @cerrar="mostrarAudio = false" />
+    </div>
+  </div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-1">
+                <button type="button" @click="goBack" class="btn btn-primary me-2"><</button>
+            </div>
+            <div class="col-2">
+                <input type="text" class="form-control" v-model="originalTitulo">
+            </div>
+            <div class="col-2">
+                <button @click="mostrarAudio = true">Abrir Audio</button>
+            </div>
+            <div class="col-2">parte 2</div>
+
+        </div>
+        <div class="row">
+            <div class="editor-container">
+                <div ref="editor" class="quill-editor"></div>
+
+                <button @click="() => console.log(quill.root.innerHTML)">Ver contenido HTML</button>
+                <button @click="insertText">Insertar texto Delta</button>
+
+                <DrawingCanvas v-if="showCanvas" class="drawing-canvas" @done="insertarImagenDibujo"
+                    @cancel="() => showCanvas.value = false" />
+            </div>
+        </div>
+    </div>
+
+</template>
+
+    <!-- <div class="editor-container">
         <div ref="editor" class="quill-editor"></div>
 
         <button @click="() => console.log(quill.root.innerHTML)">Ver contenido HTML</button>
         <button @click="insertText">Insertar texto Delta</button>
 
-        <DrawingCanvas v-if="showCanvas" class="drawing-canvas" @done="insertarImagenDibujo" @cancel="() => showCanvas.value = false" />
-    </div>
-</template>
+        <DrawingCanvas v-if="showCanvas" class="drawing-canvas" @done="insertarImagenDibujo"
+            @cancel="() => showCanvas.value = false" />
+    </div> -->
 
 <style scoped>
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* fondo semitransparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-popup {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  z-index: 1000;
+}
+
+
 .editor-container {
     max-width: 800px;
     margin: auto;
@@ -181,15 +251,17 @@ function cargarEstilos(href) {
 }
 
 .drawing-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
-  z-index: 9999; /* Asegúrate de que se sobreponga al editor */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* Fondo oscuro semi-transparente */
+    z-index: 9999;
+    /* Asegúrate de que se sobreponga al editor */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>

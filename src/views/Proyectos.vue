@@ -96,7 +96,9 @@ const codigoColaboracion = ref("");
 
 
 onMounted(() => {
-  proyecto.getProyectos({ userId: auth.user.id });
+  console.log(auth.user.id);
+  
+  proyecto.getProyectos(auth.user.id);
 });
 
 
