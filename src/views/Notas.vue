@@ -1,7 +1,13 @@
 <template>
-    <button class="btn btn-primary" @click="crearNota()">
-        Crear elemento
-    </button>
+    <div class="m-1">
+
+        <button  type="button" @click="goBack" class="button-60"><</button>
+    </div>
+    <div class="p-4" >
+        <button class="btn btn-primary" @click="crearNota()">
+            Crear elemento
+        </button>
+    </div>
     <div class="container">
         <div class="row">
             <div class="col-lg-4" v-for="nota in NotaStore.notas" :key="nota.id">
@@ -93,6 +99,10 @@ const entrar = (nota) => {
         router.push({
       name: 'editor',
     });
+}
+
+const goBack = () => {
+    router.back();
 }
 
 </script>

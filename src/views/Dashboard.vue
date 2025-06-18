@@ -18,8 +18,22 @@
       </div>
     </nav>
     <RouterView />
-    <Documentos  v-if="router.currentRoute._value.path === '/dashboard'" />
-    <!-- <Proyectos v-if="router.currentRoute._value.path === '/dashboard'" /> -->
+
+    <div class="row">
+      <div class="col">
+        <Documentos  v-if="router.currentRoute._value.path === '/dashboard'" />
+      </div>
+      <div class="col">
+        <div class="m-5 max-w-[700px]">
+          <Calendar v-if="router.currentRoute._value.path === '/dashboard'" />
+        </div>
+
+      </div>
+    </div>
+
+
+
+
   </div>
 </template>
 
@@ -27,6 +41,7 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Documentos from './Documentos.vue'
+import Calendar from './Calendar.vue'
 
 
 const router = useRouter()
@@ -37,3 +52,31 @@ const logout = () => {
   router.push('/login')
 }
 </script>
+
+<style>
+/* Reducir padding interno */
+.fc {
+  font-size: 0.75rem; /* Tamaño de fuente más pequeño */
+  max-width: 700px; /* Limita el ancho */
+  margin: auto;
+}
+
+.fc-toolbar {
+  padding: 0.25rem 0;
+}
+
+.fc-daygrid-day {
+  padding: 0 !important;
+}
+
+.fc-daygrid-event {
+  font-size: 0.65rem;
+  padding: 1px 2px;
+  border-radius: 4px;
+}
+
+.fc-scrollgrid {
+  border-radius: 8px;
+  overflow: hidden;
+}
+</style>

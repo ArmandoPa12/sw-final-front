@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.17",
+    "@fullcalendar/daygrid": "^6.1.17",
+    "@fullcalendar/vue3": "^6.1.17",
     "@he-tree/vue": "^2.9.4",
     "@milkdown/core": "^7.9.1",
     "@milkdown/preset-gfm": "^7.9.1",

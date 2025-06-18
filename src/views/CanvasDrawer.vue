@@ -58,9 +58,6 @@ onMounted(() => {
 })
 
 const doneDrawing = () => {
-    // emit('done', canvasImage)
-    // showCanvas.value = false
-
     const dataURL = myCanvas.value.toDataURL("image/png")
     emit('done', dataURL)
 }

@@ -3,20 +3,31 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import DrawingCanvas from './CanvasDrawer.vue'
 import { marked } from 'marked';
 import { useNotaStore } from '../stores/nota.js';
+import { useFilesStore } from '@/stores/files.js';
 import { useRoute, useRouter } from 'vue-router'
-import  Audio from '@/views/Audios.vue'
+import Audio from '@/views/Audios.vue'
+import Mermaid from './Mermaid.vue';
+
 
 
 
 const store = useNotaStore();
+const fileStore = useFilesStore();
 const nota = store.notaActual
 const router = useRouter();
 const mostrarAudio = ref(false)
+const mostrarMermaid = ref(false)
 const editor = ref(null)
 const contenidoHtml = ref('')
 const showCanvas = ref(false)
 let documento = ref();
-const originalTitulo = ref(nota.titulo) 
+const originalTitulo = ref(nota.titulo)
+
+//editor
+const resumen = ref('');
+const fechas = ref([]);
+const status = ref('');
+const error = ref(null);
 
 let quill
 
@@ -82,30 +93,7 @@ onUnmounted(() => {
 
 const insertText = async () => {
     const markdownText = `
-  # Resumen de las Guerras del Opio
-
-Las Guerras del Opio, también conocidas como las guerras anglo-chinas, fueron dos conflictos bélicos ocurridos en el siglo XIX entre el Imperio Chino y el Imperio Británico. Estas guerras se libraron principalmente por intereses comerciales, relacionados con el contrabando de opio. La primera guerra tuvo lugar entre 1839 y 1842, mientras que la segunda se extendió desde 1856 hasta 1860, con la intervención de Francia aliada con los británicos.
-
-## **Causas de las Guerras del Opio**
-Las principales causas de estas guerras fueron los intereses comerciales británicos y la resistencia china al comercio del opio:
-
-- **Comercio de opio**: Durante el siglo XVIII, el Reino Unido enfrentaba un gran déficit comercial con China debido a la alta demanda de productos chinos como el té, la seda y la porcelana, pero con baja demanda de productos británicos. Para contrarrestar este desequilibrio, Gran Bretaña comenzó a exportar opio ilegalmente a China desde la India, donde la Compañía Británica de las Indias Orientales tenía el monopolio de este comercio.
-- **Prohibición del opio**: En 1829, el emperador Daoguang de China prohibió la venta y consumo de opio debido a los graves problemas de adicción entre la población.
-
-## **Desarrollo de las Guerras**
-### **Primera Guerra del Opio (1839-1842)**
-La primera guerra fue un enfrentamiento directo entre el Imperio Británico y el Imperio Chino debido a la negativa de China a permitir el comercio de opio. La guerra culminó con la derrota de China, lo que obligó al gobierno chino a tolerar el comercio del opio y a abrir varios puertos al comercio exterior.
-
-### **Segunda Guerra del Opio (1856-1860)**
-La segunda guerra comenzó con la intervención de Francia, que se unió a Gran Bretaña en la lucha contra China. Durante este conflicto, se firmaron varios tratados que favorecían a las potencias extranjeras y daban como resultado la cesión de territorios y la apertura de puertos chinos al comercio exterior.
-
-## **Consecuencias**
-Las derrotas chinas en ambas guerras llevaron a la firma de los **Tratados Desiguales**, que resultaron en:
-
-- **Apertura de puertos**: Varios puertos chinos fueron abiertos al comercio con potencias extranjeras.
-- **Cesión de Hong Kong**: Hong Kong fue cedido al Reino Unido como parte de los acuerdos del **Tratado de Nankín**.
-- **Rebeliones**: Las Guerras del Opio contribuyeron a la inestabilidad interna de China, lo que dio lugar a eventos como la **Rebelión Taiping** (1850-1864) y la **Rebelión de los Bóxers** (1899-1901).
- 
+ # 📌 Documento de Resumen: Segunda Fase del Proyecto — Herramientas de Localización y Navegación en Centros Comerciales\n\n## 🧭 Contexto General\n\nLa segunda fase del proyecto tiene como objetivo principal implementar las **funcionalidades básicas de localización y navegación** dentro de centros comerciales a través de una herramienta digital interactiva. Esta etapa se enfoca en el desarrollo de componentes esenciales que permitan identificar, ubicar y buscar negocios o productos dentro de un centro comercial. Asimismo, se establecerá la estructura fundamental de la aplicación, la cual servirá como base para etapas posteriores.\n\n## 🛠️ Objetivo de la Herramienta\n\nLa herramienta que se está conceptualizando y desarrollando pretende funcionar como un **mapa interactivo** acompañado de funciones de búsqueda y exploración. Esta permitirá a los usuarios:\n\n- Listar productos disponibles en distintos comercios del centro comercial.\n- Visualizar la ubicación específica de dichos productos o tiendas en un plano interactivo.\n- Consultar información sobre diferentes locales o zonas comerciales.\n\n## 🧩 Componentes Iniciales de la Aplicación\n\nLa aplicación se divide en **tres secciones principales**:\n\n1. **Barra de herramientas o buscador**:\n   - Una interfaz donde los usuarios podrán escribir y buscar productos o nombres de locales.\n   - Botones o íconos interactivos (como una mano o lupa) para facilitar la navegación.\n\n2. **Área de visualización del plano**:\n   - Un espacio central donde se mostrará el **plano del centro comercial**.\n   - En esta área se proyectarán resultados de búsqueda y rutas dentro del espacio comercial.\n\n3. **Panel de herramientas laterales o inferiores**:\n   - Contendrá cinco herramientas o botones clave.\n   - Por ejemplo: una opción para escribir el nombre de un producto, y ver en qué locales está disponible.\n   - También se podrá buscar directamente un local comercial por nombre.\n\n## 🔍 Funcionalidades Básicas Iniciales\n\n- **Búsqueda de productos**: los usuarios podrán introducir el nombre de un producto y ver en qué tiendas del centro comercial se encuentra disponible.\n- **Búsqueda de locales comerciales**: si se conoce el nombre de un local, el sistema mostrará en qué parte exacta del plano se encuentra.\n- **Visualización de ubicación actual**: permitirá mostrar el punto actual donde se encuentra el usuario dentro del centro comercial (funcionalidad futura).\n- **Marcado visual**: los resultados de búsqueda resaltarán visualmente en el mapa (por ejemplo, usando colores como el amarillo).\n\n## 🧪 Fase de Prototipo\n\nDurante esta etapa del desarrollo, no se requiere que todas las funcionalidades estén completamente implementadas. El enfoque está en:\n\n- Construcción de la **maqueta visual** de la herramienta.\n- Colocación inicial de los botones y elementos visuales interactivos.\n- Definición de la estructura de navegación básica sin requerir lógica completa todavía.\n\n## 📍 Observaciones\n\n- Las herramientas pueden ubicarse en la parte inferior o lateral derecha de la pantalla.\n- La aplicación se diseñará para representar claramente la estructura física del centro comercial.\n- El desarrollo se centrará inicialmente en un caso específico, ubicado en la ciudad de Santa Cruz.\n\n---\n\nEste documento describe los fundamentos del sistema de localización comercial que se espera construir en las próximas iteraciones del proyecto, asegurando así una experiencia de usuario fluida y eficiente desde sus primeras versiones.
  `;
 
     const htmlContent = marked(markdownText);
@@ -121,6 +109,29 @@ Las derrotas chinas en ambas guerras llevaron a la firma de los **Tratados Desig
     }
 };
 
+const insertarResumenEnQuill = async (texto) => {
+    // const respuesta = await fileStore.resumir(texto);
+    // if (!respuesta || !respuesta.markdown) {
+    //     console.error("No se pudo obtener un resumen válido");
+    //     return;
+    // }
+
+    const htmlContent = marked(texto);
+
+    quill.setContents([]); // Esto limpia todo
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+
+    const elements = Array.from(tempDiv.childNodes);
+    for (let i = 0; i < elements.length; i++) {
+        const el = elements[i];
+        if (!el) continue;
+
+        await new Promise(resolve => setTimeout(resolve, 300)); // Opcional: delay entre inserciones
+        quill.clipboard.dangerouslyPasteHTML(quill.getLength(), el.outerHTML || el.textContent);
+    }
+};
 
 const insertarImagenDibujo = async (dataUrl) => {
     const range = quill.getSelection(true)
@@ -155,38 +166,121 @@ const guardarNota = async () => {
     const html = quill.root.innerHTML
     const a = await store.update({
         titulo: originalTitulo.value,
-        contenido: html
+        contenido: html,
     }, nota.id)
     console.log('Guardado automático')
 }
 const intervaloGuardado = setInterval(() => {
     if (quill) guardarNota()
-}, 5000)   
+}, 5000)
 
-// const guardarTituloAutomatico = async () => {
-//     await store.update({ titulo: originalTitulo.value }, nota.id)
-// }
+const prueba = async () => {
+    const html = quill.root.innerHTML   
+    await store.update({contenido_copia: html}, nota.id)
+
+    const res = 
+    {
+    "data": {
+        "fechas": [
+            {
+                "fecha": "1966",
+                "titulo": "Inicio de la Revolución Cultural china"
+            },
+            {
+                "fecha": "1969",
+                "titulo": "Finalización oficial de la Revolución Cultural china"
+            }
+        ],
+        "markdown": "### Resumen\n- La Revolución Cultural china ocurrió entre 1966 y 1969, liderada por Mao Zedong.\n- Mao Zedong recuperó el poder al final del movimiento.\n- La Guardia Roja llevó a cabo persecuciones y destrucción masiva durante la Revolución Cultural."
+    },
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+        "content-length": "535",
+        "content-type": "application/json"
+    },
+    "config": {
+        "transitional": {
+            "silentJSONParsing": true,
+            "forcedJSONParsing": true,
+            "clarifyTimeoutError": false
+        },
+        "adapter": [
+            "xhr",
+            "http",
+            "fetch"
+        ],
+        "transformRequest": [
+            null
+        ],
+        "transformResponse": [
+            null
+        ],
+        "timeout": 0,
+        "xsrfCookieName": "XSRF-TOKEN",
+        "xsrfHeaderName": "X-XSRF-TOKEN",
+        "maxContentLength": -1,
+        "maxBodyLength": -1,
+        "env": {},
+        "headers": {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json"
+        },
+        "baseURL": "http://localhost:5000",
+        "method": "post",
+        "url": "/resumir-chatgpt",
+        "data": "{\"texto\":\"<h2>¿Qué fue la Revolución Cultural china?</h2><p>La Revolución Cultural china&nbsp;<strong>fue un movimiento sociopolítico ocurrido entre 1966 y 1969</strong>&nbsp;e iniciado por Mao Zedong, líder del Partido Comunista de China (PCCh). Fue consecuencia de la lucha interna entre los líderes del partido que gobernaba el país. También es conocida con el nombre “Gran Revolución Cultural Proletaria”.</p><p>En 1966, Mao hizo un llamado general a la juventud militante y organizó una persecución en contra de sus enemigos políticos, que lo habían apartado del poder. Este movimiento multitudinario conformó grupos paramilitares que llevaron a cabo masacres violentas y causaron la muerte de cientos de miles de personas.</p><p>La lógica de la Revolución Cultural&nbsp;<strong>estuvo conducida por el fuerte culto a la personalidad de Mao Zedong</strong>, su identificación personal con el comunismo nacional, la represión de las disidencias políticas y la purga de los líderes del PCCh que se oponían a Mao.</p><p>La Revolución Cultural china&nbsp;<strong>terminó cuando Mao recuperó el poder</strong>. Sin embargo, a su muerte, todas las personas implicadas en ella fueron juzgadas y condenadas por las masacres perpetradas.</p><h4>Puntos clave</h4><ul><li>La Revolución Cultural china fue liderada por Mao Zedong y surgió por las luchas de poder internas del Partido Comunista de China.</li><li>Para recuperar su poder, Mao se alió con la Guardia Roja e inició una persecución política que llevó a la violencia y la destrucción masiva.</li><li>La Revolución Cultural china devastó las élites chinas, destruyó gran parte del patrimonio de la cultura tradicional y asesinó y torturó a más de cientos de miles de personas.</li><li>El proceso se inició en 1966 y finalizó de manera oficial en 1969. Sin embargo, Mao perdió el control de la Guardia Roja y la violencia perduró por varios años más.</li></ul><h2>¿Qué pasó en la Revolución Cultural china?</h2><p>Los militantes maoístas predicaban en contra de la cultura tradicional china.</p><p>Desde la Revolución China de 1949, Mao había liderado el gobierno chino con cierto éxito. Sin embargo, en los últimos años, sus políticas económicas (conocidas como “Gran Salto Adelante”) habían llevado a una profunda crisis y a una gran hambruna.</p><p>En ese contexto,<strong>&nbsp;Mao fue obligado por la cúpula del partido a relegar el mando y ocupar un rol secundario de liderazgo</strong>. Para recuperar el poder, Mao formó una alianza con otros miembros del PCCh: Zhang Chunqiao, Yao Wenyuan y Wang Hongwen (a la que más tarde se conoció como “Banda de los Cuatro”), y juntos organizaron la Revolución Cultural.</p><p>Mao hizo un llamado a la juventud militante (la mayoría estudiantes de escuelas secundarias y universidades) a conformar unidades en la llamada “Guardia Roja”. Millones de jóvenes se adhirieron.</p><p>La Guardia Roja se ocupó de la persecución de todos los que fueran acusados de detractores. Además, se le encargó la destrucción de “los cuatro viejos”, que eran los cuatro pilares de la sociedad tradicional china: las costumbres, la cultura, los hábitos y las ideas antiguas. Con ese pretexto, los guardias rojos llevaron a cabo la destrucción de museos, templos, santuarios y gran parte del patrimonio histórico chino.</p><p><strong>Los guardias rojos fueron responsables de la muerte de cientos de miles de personas en China</strong>. Durante el “agosto rojo” en Pekín, fueron asesinadas casi 2.000 personas y decenas de miles de casas fueron saqueadas o destruidas. Se estima que hubo entre 100.000 y 150.000 muertos en la masacre de Guangxi, casi 20.000 en la Purga de Mongolia Interior, cerca de 5.000 en la masacre de Guangdong, 17.000 en Yunnan y más de 7.000 en Daoxian. Estas cifras representan solo algunas de las matanzas más terribles del periodo.</p>\"}",
+        "allowAbsoluteUrls": true
+    },
+    "request": {}   
+};    
+
+    // const resp =  await fileStore.resumir(nota.contenido);
+    console.log(res.data.markdown);
+    await insertarResumenEnQuill(res.data.markdown)
+}
+
+const recuperar = async () => {
+    console.log(nota.contenido_copia);
+    await insertarResumenEnQuill(nota.contenido_copia);
+    
+}
 
 </script>
 
 <template>
-     <div v-if="mostrarAudio" class="modal-overlay">
-    <div class="modal-popup">
-      <Audio @cerrar="mostrarAudio = false" />
+    <div v-if="mostrarAudio" class="modal-overlay">
+        <div class="modal-popup">
+            <Audio @cerrar="mostrarAudio = false" />
+        </div>
     </div>
-  </div>
+
+        <div v-if="mostrarMermaid" class="modal-overlay">
+        <div class="modal-popup">
+            <Mermaid @cerrar="mostrarMermaid = false" />
+        </div>
+    </div>
+
     <div class="container mt-4">
         <div class="row">
-            <div class="col-1">
-                <button type="button" @click="goBack" class="btn btn-primary me-2"><</button>
+            <div class="col">
+                <button  type="button" @click="goBack" class="button-60"><</button>
             </div>
-            <div class="col-2">
-                <input type="text" class="form-control" v-model="originalTitulo">
+            <div class="col-3">
+                <input  type="text" class="form-control" v-model="originalTitulo">
             </div>
-            <div class="col-2">
-                <button @click="mostrarAudio = true">Abrir Audio</button>
+            <div class="col">
+                <button class="button-60" @click="mostrarAudio = true">Abrir Audio</button>
             </div>
-            <div class="col-2">parte 2</div>
+            <div class="col">
+                <button class="button-60"  @click="prueba()"> prueba</button>
+            </div>
+            <div class="col">
+                <button v-if="nota.contenido_copia.length > 0" class="button-60"  @click="recuperar()"> recuperar</button>
+            </div>
+            <div class="col">
+                <button class="button-60" @click="mostrarMermaid = true">Abrir mermaid</button>
+            </div>
 
         </div>
         <div class="row">
@@ -204,7 +298,7 @@ const intervaloGuardado = setInterval(() => {
 
 </template>
 
-    <!-- <div class="editor-container">
+<!-- <div class="editor-container">
         <div ref="editor" class="quill-editor"></div>
 
         <button @click="() => console.log(quill.root.innerHTML)">Ver contenido HTML</button>
@@ -215,28 +309,29 @@ const intervaloGuardado = setInterval(() => {
     </div> -->
 
 <style scoped>
-
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5); /* fondo semitransparente */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    /* fondo semitransparente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
 }
 
 .modal-popup {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
-  z-index: 1000;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 600px; 
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+    z-index: 1000;
 }
 
 
@@ -263,5 +358,48 @@ const intervaloGuardado = setInterval(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.button-60 {
+  align-items: center;
+  appearance: none;
+  background-color: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: .375em;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: #363636;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 1rem;
+  height: 2.5em;
+  justify-content: center;
+  line-height: 1.5;
+  padding: calc(.5em - 1px) 1em;
+  position: relative;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.button-60:active {
+  border-color: #4a4a4a;
+  outline: 0;
+}
+
+.button-60:focus {
+  border-color: #485fc7;
+  outline: 0;
+}
+
+.button-60:hover {
+  border-color: #b5b5b5;
+}
+
+.button-60:focus:not(:active) {
+  box-shadow: rgba(72, 95, 199, .25) 0 0 0 .125em;
 }
 </style>

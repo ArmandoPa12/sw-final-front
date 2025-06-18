@@ -1,19 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Example from '@/views/Example.vue'
-import Grid from '@/views/Grid.vue'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
 import Dashboard from '@/views/Dashboard.vue'
-import Socket from '@/views/socket.vue'
-import Diagrama from '@/views/Diagrama.vue'
-import Colaboracion from '@/views/Colaboracion.vue'
-import ConversionView from '@/views/ConversionView.vue'
 import RegisterView from '@/views/RegisterView.vue'
-import MilkdownEditorWrapper from '@/views/MilkdownEditorWrapper.vue'
-import DrawView from '@/views/DrawView.vue'
 import TextEdito from '@/views/TextEditor.vue'
 import CanvasDrawer from '@/views/CanvasDrawer.vue'
-import FlutterView from '@/views/FlutterView.vue'
 import Notas from '@/views/Notas.vue'
 
 const router = createRouter({
@@ -43,9 +34,7 @@ const router = createRouter({
             path: '/dashboard',
             component: Dashboard,
             meta: { requiresAuth: true },
-            children: [
-
-                {
+            children: [{
                     path: '/',
                     redirect: '/dashboard'
                 },
@@ -57,57 +46,11 @@ const router = createRouter({
                     meta: { requiresAuth: true }
                 },
                 {
-                    path: '/socket',
-                    name: 'socket',
-                    component: Socket,
-                    meta: { requiresAuth: true }
-                },
-                {
-                    path: '/flutter/:id/:codigo',
-                    name: 'flutter',
-                    component: FlutterView,
-                },
-                {
                     path: '/notas/:id',
                     name: 'notas',
                     component: Notas,
                 },
-                {
-                    path: '/flutter-colaborativo/:codigo',
-                    name: 'flutter-colaborativo',
-                    component: FlutterView,
-                },
-                {
-                    path: '/home-convert',
-                    name: 'home-convert',
-                    component: ConversionView,
-                    meta: { requiresAuth: true }
-                },
-                {
-                    path: '/example',
-                    name: 'example',
-                    component: Example,
-                    meta: { requiresAuth: true }
-                },
-                {
-                    path: '/grid',
-                    name: 'grid',
-                    component: Grid,
-                    meta: { requiresAuth: true }
-                },
             ]
-        },
-        {
-            path: '/diagrama/:id/:codigo',
-            component: Diagrama,
-            name: 'diagrama',
-            meta: { requiresAuth: true }
-        },
-        {
-            path: '/colaborativo/:codigo',
-            component: Diagrama,
-            name: 'colaborativo',
-            meta: { requiresAuth: true }
         },
 
     ],

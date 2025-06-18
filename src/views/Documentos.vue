@@ -1,8 +1,10 @@
 <template>
 
-  <button class="btn btn-primary" @click="mostrar = true">
-    Crear elemento
-  </button>
+  <div class="p-4">
+    <button class="btn btn-primary" @click="mostrar = true">
+      Crear elemento
+    </button>
+  </div>
 
   <div v-if="mostrar" class="modal-backdrop-custom">
     <div class="modal d-block" tabindex="-1">
