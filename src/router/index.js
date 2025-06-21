@@ -6,6 +6,8 @@ import RegisterView from '@/views/RegisterView.vue'
 import TextEdito from '@/views/TextEditor.vue'
 import CanvasDrawer from '@/views/CanvasDrawer.vue'
 import Notas from '@/views/Notas.vue'
+import Suscriber from '@/views/Suscriber.vue'
+import Payment from '@/views/Payment.vue'
 
 const router = createRouter({
     history: createWebHistory(
@@ -32,6 +34,7 @@ const router = createRouter({
         },
         {
             path: '/dashboard',
+            name: 'dashboard',
             component: Dashboard,
             meta: { requiresAuth: true },
             children: [{
@@ -49,6 +52,16 @@ const router = createRouter({
                     path: '/notas/:id',
                     name: 'notas',
                     component: Notas,
+                },
+                {
+                    path: '/suscripcion',
+                    name: 'suscripcion',
+                    component: Suscriber,
+                },
+                {
+                    path: '/payment',
+                    name: 'paymente',
+                    component: Payment,
                 },
             ]
         },

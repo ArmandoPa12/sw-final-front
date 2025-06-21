@@ -23,7 +23,7 @@
       <div class="col">
         <Documentos  v-if="router.currentRoute._value.path === '/dashboard'" />
       </div>
-      <div class="col">
+      <div v-if="auth.user.profesor" class="col">
         <div class="m-5 max-w-[700px]">
           <Calendar v-if="router.currentRoute._value.path === '/dashboard'" />
         </div>
@@ -42,10 +42,18 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Documentos from './Documentos.vue'
 import Calendar from './Calendar.vue'
+import { onMounted, watch } from 'vue'
+import { usePlanStore } from '@/stores/plan'
 
 
 const router = useRouter()
 const auth = useAuthStore()
+const plan = usePlanStore()
+
+onMounted(async() => {
+  await plan.get(auth.user.id);
+})
+
 
 const logout = () => {
   auth.logout()

@@ -1,12 +1,16 @@
 <template>
     <div class="m-1">
-
         <button  type="button" @click="goBack" class="button-60"><</button>
+       
+
     </div>
     <div class="p-4" >
         <button class="btn btn-primary" @click="crearNota()">
             Crear elemento
         </button>
+
+        <input class="btn btn-primary" type="file" accept=".md,.html" @change="handleArchivoImportado" />
+
     </div>
     <div class="container">
         <div class="row">
@@ -58,6 +62,9 @@ import { ref, onMounted } from "vue";
 import { useNotaStore } from '@/stores/nota';
 import { useAuthStore } from '@/stores/auth';
 
+import TurndownService from 'turndown'
+import { marked } from 'marked'
+
 import moment from 'moment'
 import 'moment/locale/es'
 
@@ -81,7 +88,6 @@ function preview(html) {
 }
 
 async function crearNota (){
-    // console.log(moment().format('YYYY-MM-DD HH:mm:ss'));
     const creado = await NotaStore.create({
         titulo: moment().format('YYYY-MM-DD HH:mm:ss'),
         contenido: '',
@@ -91,7 +97,6 @@ async function crearNota (){
     router.push({
       name: 'editor',
     });
-    
 }
 
 const entrar = (nota) => {
@@ -103,6 +108,49 @@ const entrar = (nota) => {
 
 const goBack = () => {
     router.back();
+}
+
+const importarNotaDesdeArchivo = async (file) => {
+    if (!file) return
+
+    // 1️⃣ Obtener el nombre del archivo (sin extensión) para usar como título
+    const nombreArchivo = file.name.replace(/\.[^/.]+$/, '') // elimina .md o .html
+    const tituloLimpio = nombreArchivo.replace(/[_\-]/g, ' ').trim() // Limpieza opcional
+    
+    const reader = new FileReader()
+
+    reader.onload = async (e) => {
+        const contenidoArchivo = e.target.result
+        let contenidoHTML = ''
+
+        if (file.name.endsWith('.md')) {
+            // Markdown → HTML usando marked
+            contenidoHTML = marked.parse(contenidoArchivo)
+        } else if (file.name.endsWith('.html')) {
+            contenidoHTML = contenidoArchivo
+        } else {
+            console.error('Formato de archivo no soportado')
+            return
+        }
+
+        // 📌 Crear la nota en el backend
+        const creado = await NotaStore.create({
+            titulo: tituloLimpio || moment().format('YYYY-MM-DD HH:mm:ss'),
+            contenido: contenidoHTML,
+            materiaId: idMateria.value
+        })
+        NotaStore.setNotaActual(creado)
+
+        // Redirigir al editor
+        router.push({ name: 'editor' })
+    }
+
+    reader.readAsText(file)
+}
+
+const handleArchivoImportado = (e) => {
+    const archivo = e.target.files[0]
+    importarNotaDesdeArchivo(archivo)
 }
 
 </script>

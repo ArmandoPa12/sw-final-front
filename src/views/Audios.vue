@@ -95,7 +95,8 @@ import { useFilesStore } from '@/stores/files.js';
 
 
 
-const emit = defineEmits(['cerrar'])
+const emit = defineEmits(['cerrar','insertar-transcripcion'])
+
 const mediaRecorder = ref(null)
 const audioChunks = ref([])
 const audioUrl = ref(null)
@@ -142,7 +143,7 @@ const transcribir = async (audio) => {
     const result = await fileStore.transcribirAudioDesdeUrl(urlCompleta);
     audio.transcripcion = result;
     await fileStore.updateTranscripcin(audio)
-    
+    emit('insertar-transcripcion', result);
     
   } catch (e) {
     console.error('Error al transcribir', e);

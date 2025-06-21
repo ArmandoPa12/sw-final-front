@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const res = await axios.post('api/users/login', credenciales)
 
-            console.log(res);
+            // console.log(res);
             user.value = res.data.user;
             // userId.value = res.data.
             token.value = res.data.token;
