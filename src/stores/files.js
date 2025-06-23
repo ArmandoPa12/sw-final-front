@@ -101,6 +101,15 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
+    const mapaMental = async(texto) => {
+        try {
+            const res = await axiosFlask.post('/generar-mapa-mental', { texto });
+            return res;
+        } catch (err) {
+            return err;
+        }
+    };
+
 
 
 
@@ -110,6 +119,7 @@ export const useFilesStore = defineStore('files', () => {
         transcribirAudioDesdeUrl,
         updateTranscripcin,
         resumir,
+        mapaMental,
         transcripcion,
         status,
         error,

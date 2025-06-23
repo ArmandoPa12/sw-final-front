@@ -2,7 +2,7 @@
 
   <div class="p-4">
     <button class="btn btn-primary" @click="mostrar = true">
-      Crear elemento
+      Crear Clase
     </button>
   </div>
 
@@ -12,7 +12,7 @@
         <div class="modal-content">
 
           <div class="modal-header">
-            <h5 class="modal-title">Crear nuevo elemento</h5>
+            <h5 class="modal-title">Crear nueva clase</h5>
             <button type="button" class="btn-close" @click="cerrarModal"></button>
           </div>
 
@@ -47,7 +47,7 @@
 
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
-    <h6 class="border-bottom pb-2 mb-0">Documentos</h6>
+    <h6 class="border-bottom pb-2 mb-0">Clases</h6>
 
     <div class="d-flex text-muted pt-3" v-for="item in materiaStore.materias">
       <div class="flex-shrink-0 rounded text-white d-flex justify-content-center align-items-center"

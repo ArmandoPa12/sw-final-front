@@ -22,6 +22,16 @@ export const useCalendarioStore = defineStore('calendario', () => {
             throw error;
         }
     }
+    const create = async(datos) => {
+        try {
+            console.log(datos);
+
+            const res = await axios.post('calendario/create', datos)
+            return res.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 
     const getUno = async(datos) => {
 
@@ -34,14 +44,6 @@ export const useCalendarioStore = defineStore('calendario', () => {
         }
     }
 
-    const create = async(datos) => {
-        try {
-            const res = await axios.post('nota', datos)
-            return res.data;
-        } catch (error) {
-            throw error;
-        }
-    }
 
 
     const update = async(datos, id) => {

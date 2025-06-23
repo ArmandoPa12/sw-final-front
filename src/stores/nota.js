@@ -52,9 +52,9 @@ export const useNotaStore = defineStore('nota', () => {
         }
     };
 
-    const deleted = async(datos, id) => {
+    const deleted = async(id, user) => {
         try {
-            const res = await axios.post(`api/proyecto/${id}/imagen`, datos);
+            const res = await axios.delete(`nota/${id}`, { usuarioId: user });
             return res.data;
         } catch (error) {
             throw error;

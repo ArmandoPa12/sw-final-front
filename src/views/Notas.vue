@@ -1,24 +1,29 @@
 <template>
-    <div class="m-1">
-        <button  type="button" @click="goBack" class="button-60"><</button>
-       
 
+    <div class="m-1">
+        <button type="button" @click="goBack" class="button-60">
+            <</button>
     </div>
-    <div class="p-4" >
-        <button class="btn btn-primary" @click="crearNota()">
-            Crear elemento
+    <div class="m-4">
+        <button class="custom-file-input m-2" @click="crearNota()">
+            Crear Clase
         </button>
 
-        <input class="btn btn-primary" type="file" accept=".md,.html" @change="handleArchivoImportado" />
-
+        <input class="custom-file-input" type="file" :hidden="!plan.tieneCaracteristica('exportar_pdf')"
+            @change="handleArchivoImportado" accept=".md,.html" />
     </div>
+
     <div class="container">
         <div class="row">
-            <div class="col-lg-4" v-for="nota in NotaStore.notas" :key="nota.id">
+            <div class="col-lg-4" v-for="nota in NotaStore.notas" :key="nota.id" style="position: relative;">
+
+                <button class="btn btn-sm btn-danger position-absolute" style="top: 5px; left: 5px; z-index: 1;"
+                    @click="eliminarNota(nota.id)">
+                    ×
+                </button>
+
                 <div class="card card-margin">
-                    <div class="card-header no-border">
-                        <!-- <h5 class="card-title">{{ nota.titulo }}</h5> -->
-                    </div>
+                    <div class="card-header no-border"></div>
                     <div class="card-body pt-0">
                         <div class="widget-49">
                             <div class="widget-49-title-wrapper">
@@ -30,29 +35,25 @@
                                     <h3 class="widget-49-pro-title">{{ nota.titulo }}</h3>
                                     <span class="widget-49-pro-title">{{ moment(nota.createdAt).format('hh:mm')
                                         }}</span>
-
                                 </div>
                             </div>
                             <ol class="widget-49-meeting-points">
                                 <ul>
                                     <span class="widget-49-meeting-item">{{ preview(nota.contenido) }}</span>
-
                                 </ul>
                             </ol>
                             <div class="widget-49-meeting-action">
-                                <button @click="entrar(nota)" class="btn btn-sm btn-flash-border-primary">
-                                    Ver nota completa     
-                                </button>
-                                <!-- <router-link class="btn btn-sm btn-flash-border-primary">
-                                    Ver nota completa
-                                </router-link> -->
+                                <button @click="entrar(nota)" class="btn btn-sm btn-flash-border-primary">Ver nota
+                                    completa</button>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+
 
 </template>
 
@@ -61,21 +62,28 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, onMounted } from "vue";
 import { useNotaStore } from '@/stores/nota';
 import { useAuthStore } from '@/stores/auth';
+import { usePlanStore } from '@/stores/plan'
+
 
 import TurndownService from 'turndown'
 import { marked } from 'marked'
 
 import moment from 'moment'
 import 'moment/locale/es'
+import Suscriber from './Suscriber.vue';
 
 const router = useRouter();
+const plan = usePlanStore()
 const NotaStore = useNotaStore();
 const auth = useAuthStore();
 const route = useRoute()
+const mostrarSuscripcion = ref(false)
 const idMateria = ref(Number(route.params.id || 0));
 
 
 onMounted(() => {
+    console.log(plan.caracteristicas);
+
     NotaStore.get(idMateria.value);
 });
 
@@ -87,7 +95,7 @@ function preview(html) {
     return text.slice(0, 50) + '...';
 }
 
-async function crearNota (){
+async function crearNota() {
     const creado = await NotaStore.create({
         titulo: moment().format('YYYY-MM-DD HH:mm:ss'),
         contenido: '',
@@ -95,14 +103,14 @@ async function crearNota (){
     });
     NotaStore.setNotaActual(creado);
     router.push({
-      name: 'editor',
+        name: 'editor',
     });
 }
 
 const entrar = (nota) => {
     NotaStore.setNotaActual(nota);
-        router.push({
-      name: 'editor',
+    router.push({
+        name: 'editor',
     });
 }
 
@@ -113,10 +121,9 @@ const goBack = () => {
 const importarNotaDesdeArchivo = async (file) => {
     if (!file) return
 
-    // 1️⃣ Obtener el nombre del archivo (sin extensión) para usar como título
-    const nombreArchivo = file.name.replace(/\.[^/.]+$/, '') // elimina .md o .html
-    const tituloLimpio = nombreArchivo.replace(/[_\-]/g, ' ').trim() // Limpieza opcional
-    
+    const nombreArchivo = file.name.replace(/\.[^/.]+$/, '')
+    const tituloLimpio = nombreArchivo.replace(/[_\-]/g, ' ').trim()
+
     const reader = new FileReader()
 
     reader.onload = async (e) => {
@@ -124,7 +131,6 @@ const importarNotaDesdeArchivo = async (file) => {
         let contenidoHTML = ''
 
         if (file.name.endsWith('.md')) {
-            // Markdown → HTML usando marked
             contenidoHTML = marked.parse(contenidoArchivo)
         } else if (file.name.endsWith('.html')) {
             contenidoHTML = contenidoArchivo
@@ -133,7 +139,6 @@ const importarNotaDesdeArchivo = async (file) => {
             return
         }
 
-        // 📌 Crear la nota en el backend
         const creado = await NotaStore.create({
             titulo: tituloLimpio || moment().format('YYYY-MM-DD HH:mm:ss'),
             contenido: contenidoHTML,
@@ -141,7 +146,6 @@ const importarNotaDesdeArchivo = async (file) => {
         })
         NotaStore.setNotaActual(creado)
 
-        // Redirigir al editor
         router.push({ name: 'editor' })
     }
 
@@ -152,6 +156,14 @@ const handleArchivoImportado = (e) => {
     const archivo = e.target.files[0]
     importarNotaDesdeArchivo(archivo)
 }
+
+const eliminarNota = async (idNota) => {
+    if (confirm('¿Seguro que deseas eliminar esta nota?')) {
+        await NotaStore.deleted(idNota, auth.user.id)
+        await NotaStore.get(idMateria.value);
+    }
+}
+
 
 </script>
 
@@ -467,5 +479,56 @@ const handleArchivoImportado = (e) => {
 
 .widget-49 .widget-49-meeting-action a {
     text-transform: uppercase;
+}
+
+.custom-file-input {
+    position: relative;
+    display: inline-block;
+    width: 200;
+    padding: 0.5rem 0.75rem;
+    color: #6c757d;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.custom-file-input::file-selector-button {
+    padding: 0.4rem 1rem;
+    border: none;
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 4px;
+    margin-right: 1rem;
+    cursor: pointer;
+}
+
+.custom-file-input:hover::file-selector-button {
+    background-color: #0b5ed7;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    /* fondo semitransparente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-popup {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 900px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+    z-index: 1000;
 }
 </style>

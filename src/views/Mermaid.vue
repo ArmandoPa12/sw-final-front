@@ -1,24 +1,50 @@
 <template>
-  <div class="mermaid-preview p-3">
+  <!-- <div class="mermaid-preview p-3">
     <button class="button-60" @click="$emit('cerrar')">Cerrar</button>
-    <button class="button-60" @click="generarMermaid">Generar</button>
+    <button class="button-60" @click="generarMermaid" :disabled="usandoIA">Generar</button>
     <div v-if="notaActual.mermaid === '' " class="preview" v-html="convertedHtml" ref="preview" />
     <div v-else> Aun no generado el mapa mental</div>
+  </div> -->
+
+  <div class="mermaid-preview p-3">
+    <button class="button-60" @click="$emit('cerrar')">Cerrar</button>
+    <button class="button-60" @click="generarMermaid" :disabled="usandoIA || !contenidoSuficiente">Generar</button>
+
+    <div v-if="!contenidoSuficiente" class="alert alert-warning mt-2">
+      Se necesita más información (mínimo {{ MIN_PALABRAS }} palabras) para generar un mapa mental.
+    </div>
+
+    <div v-else-if="notaActual.mermaid && notaActual.mermaid.trim() !== ''" class="preview" v-html="convertedHtml"
+      ref="preview" />
+
+    <div v-else class="mt-2 text-muted">Aún no generado el mapa mental</div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useNotaStore } from '../stores/nota.js';
+import { useFilesStore } from '@/stores/files.js';
+
 
 import showdown from 'showdown'
 import mermaid from 'mermaid'
 
+
+const fileStore = useFilesStore();
 const notaStore = useNotaStore();
 const notaActual = notaStore.notaActual
+const usandoIA = ref(false)
+const MIN_PALABRAS = 30
 
+const contarPalabras = (texto) => {
+  return texto.trim().split(/\s+/).length
+}
 
-
+const contenidoSuficiente = computed(() => {
+  if (!notaActual.contenido) return false
+  return contarPalabras(notaActual.contenido) >= MIN_PALABRAS
+})
 showdown.extension('mermaid', function () {
   return [{
     type: 'lang',
@@ -29,32 +55,8 @@ showdown.extension('mermaid', function () {
   }]
 })
 
-const text = {
-  "mermaid": "mermaid\nmindmap\n  root((Revolución Francesa))\n    Causas\n      Insatisfacción con la monarquía\n      Desigualdad social\n      Crisis económicas\n    Eventos clave\n      Toma de la Bastilla\n      Declaración de los Derechos del Hombre ::icon(fa fa-book)\n      Reinado del Terror\n      Ejecución de Luis XVI y María Antonieta\n      Ascenso de Napoleón Bonaparte\n    Consecuencias\n      Creación de la República\n      Abolición de la monarquía absoluta\n      Difusión de ideas: Libertad, Igualdad, Fraternidad\n      Consolidación del poder burgués\n    Influencia\n      Inspiración a movimientos revolucionarios en Europa y América\n      Punto de inflexión histórico"
-}
 
-
-const markdown = ref(`
-\`\`\`mermaid
-mindmap
-  root((mindmap))
-    Origins
-      Long history
-      ::icon(fa fa-book)
-      Popularisation
-        British popular psychology author Tony Buzan
-    Research
-      On effectiveness<br/>and features
-      On Automatic creation
-        Uses
-            Creative techniques
-            Strategic planning
-            Argument mapping
-    Tools
-      Pen and paper
-      Mermaid
-\`\`\`
-`)
+const markdown = ref('')
 
 const converter = new showdown.Converter({
   extensions: ['mermaid'],
@@ -76,17 +78,35 @@ watch(convertedHtml, async () => {
   }
 })
 
-// También al montarse por primera vez
 onMounted(async () => {
+  if (notaActual.mermaid && notaActual.mermaid.trim() !== '') {
+    markdown.value = notaActual.mermaid
+  }
+
   await nextTick()
-  if (preview.value) {
+  if (preview.value && markdown.value.trim() !== '') {
     mermaid.initialize({ startOnLoad: false })
     mermaid.run(undefined, preview.value)
   }
 })
 
-const generarMermaid = () => {
-  console.log('genrado');
+const generarMermaid = async () => {
+  usandoIA.value = true
+  try {
+    const nota = notaActual.contenido
+    const dato = await fileStore.mapaMental(nota);
+
+    markdown.value = `\`\`\`${dato.data.mermaid}\n\`\`\``
+    console.log(markdown.value);
+
+    await notaStore.update({
+      mermaid: markdown.value
+    }, notaActual.id)
+
+  } catch (error) {
+    console.log(error);
+  }
+  usandoIA.value = false
 }
 
 </script>
@@ -99,6 +119,7 @@ const generarMermaid = () => {
   overflow-x: auto;
   background-color: #fff;
 }
+
 button {
   margin-bottom: 12px;
 }
@@ -114,7 +135,7 @@ button {
   color: #363636;
   cursor: pointer;
   display: inline-flex;
-  font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 1rem;
   height: 2.5em;
   justify-content: center;
